@@ -55,9 +55,19 @@ namespace BrowserInterop.Storage
         /// <returns></returns>
         public async ValueTask<T> GetItem<T>(string keyName)
         {
-            var strValue =
-                await jsRuntime.InvokeInstanceMethod<string>(await GetJsRuntimeObjectRef().ConfigureAwait(false), "getItem", keyName).ConfigureAwait(false);
+            var strValue = await GetItemAsString(keyName);
+            if (string.IsNullOrEmpty(strValue)) return default;
             return JsonSerializer.Deserialize<T>(strValue);
+        }
+
+        /// <summary>
+        /// will return that key's raw string value, or null if the key does not exist, in the given Storage object.
+        /// </summary>
+        /// <param name="keyName"></param>
+        /// <returns></returns>
+        public async ValueTask<string> GetItemAsString(string keyName)
+        {
+            return await jsRuntime.InvokeInstanceMethod<string>(await GetJsRuntimeObjectRef().ConfigureAwait(false), "getItem", keyName).ConfigureAwait(false);
         }
 
         /// <summary>
